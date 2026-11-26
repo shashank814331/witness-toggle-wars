@@ -44,3 +44,8 @@
 - Implemented `sim/model.md`, `sim/simulate.ts` (strictly blocks Production env/keys; builds isolated `.tmp-sim-dist`; waits for `#connection-status` settle), `analysis/verify.py` (`scipy.stats.chisquare` SRM + 200k Beta(1,1)-Binomial Monte Carlo), `tests/unit/sim.test.ts`, and `tests/unit/test_verify.py`.
 - Verified 21/21 Vitest unit tests, 3/3 Python unit tests, and 6-user `--mock-local` Chrome calibration dry run + `analysis/verify.py` reconciliation (`3` control / `3` counterexample, `srm_p_value = 1.0`).
 - **Next:** Module 8 — CI workflow, `README.md`, `WALKTHROUGH.md`, `DEMO_SCRIPT.md`, `RESULTS.md` template, and final audit.
+
+## Module 8: CI, Documentation & Local Verification (`2026-11-26`)
+
+- Added `.github/workflows/ci.yml`, `README.md`, `WALKTHROUGH.md`, `DEMO_SCRIPT.md`, `RESULTS.md`, updated `CHANGELOG.md` and `TEST_REPORT.md`, and cleaned `__pycache__` from git index.
+- All local quality gates verified green; Production Flagsmith `--apply`, `prereg-v1` tag, Vercel deployment, and `shashank814331` remote push parked in `.agent/parked.md`.

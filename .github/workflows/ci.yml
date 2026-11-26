@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install Node and Python dependencies
+        run: |
+          npm ci
+          pip install -r analysis/requirements.txt
+
+      - name: Formatting, typecheck, lint, unit tests, and build
+        run: |
+          npm run format:check
+          npm run typecheck
+          npm run lint
+          npm run test:unit
+          python -m unittest discover -s tests/unit -p "test_*.py" -v
+          bash -n ops/*.sh
+          npm run build
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E and blocked-network fallback tests
+        env:
+          CI: 'true'
+        run: npm run test:e2e
+
+      - name: Runtime dependency audit
+        run: npm audit --omit=dev
+
+      - name: Secret pattern scan
+        run: |
+          if git grep -nE '(BEGIN (RSA|EC|OPENSSH) PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|FLAGSMITH_API_KEY=[A-Za-z0-9._-]{8,})'; then
+            echo "Potential secret detected in tracked files."
+            exit 1
+          fi

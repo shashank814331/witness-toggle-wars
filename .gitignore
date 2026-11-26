@@ -5,6 +5,8 @@ dist/
 coverage/
 playwright-report/
 test-results/
+__pycache__/
+*.py[cod]
 *.log
 npm-debug.log*
 .env
