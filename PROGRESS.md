@@ -52,29 +52,27 @@
 
 ## Complete Track 01 `.md` Specification Audit Checklist
 
-### Completed Locally (Verified)
+### Completed Locally & Pushed to GitHub (`2026-11-26 20:31 IST`)
 
-- [x] Consent screen with anonymous `wit_<uuid>` ID, 5 event names listed, and tracking-free Practice Mode (`src/consent.ts`)
+- [x] Consent screen with anonymous `wit_<uuid>` ID, explicit `18+ only` & no-personal-data notice, 5 event names listed, and tracking-free Practice Mode (`src/consent.ts`)
 - [x] Core challenges C1 (ISO date + anchoring trap), C2 (Semver), and C3 Checkpoint (Hex colour, count-only for everyone) (`src/engine/challenges.ts`)
 - [x] Pure evaluator with `>200` chars rejection and `>50 ms` per-test ReDoS timeout (`src/engine/evaluate.ts`)
 - [x] Arm-specific renderers (`control` count-only vs `counterexample` exact phrasing) + `feedback_render_error` fallback (`src/ui/feedback.ts`)
 - [x] `"Show solution"` disabled until 2 non-syntax failures, fires `gave_up` once (`src/ui/challengeView.ts`)
-- [x] Finish view disclosing outcomes, arm, and `PREREGISTRATION.md` link (`src/ui/finish.ts`)
-- [x] Triggered exposure (`getExperimentFlag('feedback_style')` ONLY on 1st failed core attempt), `aa_canary` right after consent, once-per-identity guards, `pagehide`/`visibilitychange` flush (`src/experiment/*`)
+- [x] Finish view disclosing outcomes, attempt counts, counterfactual side-by-side comparison, arm, and `PREREGISTRATION.md` link (`src/ui/finish.ts`)
+- [x] Triggered exposure (`getExperimentFlag('feedback_style')` ONLY on 1st failed core attempt), `aa_canary` right after consent, once-per-identity guards, `pagehide`/`visibilitychange` `keepalive` flush (`src/experiment/*`)
 - [x] Offline/401 fallback to `control` with zero uncaught errors (`tests/e2e/witness.spec.ts`)
-- [x] WCAG AA accessibility & keyboard operation verified with `@axe-core/playwright` (`tests/e2e/witness.spec.ts`)
-- [x] Dry-run-by-default CLI v2 scripts (`ops/*.sh`) including `--key` enforcement & `prereg-v1` check
+- [x] WCAG AA accessibility (light & dark mode) & keyboard operation verified with `@axe-core/playwright` (`tests/e2e/witness.spec.ts`)
+- [x] Dry-run-by-default CLI v2 scripts (`ops/*.mjs`, `ops/*.sh`), no-peeking `ops/monitor.mjs`, and `ops/make_qr.py` + `RECRUITMENT.md`
 - [x] Calibration simulator (`sim/model.md`, `sim/simulate.ts`, Production key refusal) & Python SRM + 200k Beta-Binomial + reconciliation script (`analysis/verify.py`)
-- [x] Required docs & CI: `PROJECT_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `PROGRESS.md`, `DECISIONS.md`, `TEST_REPORT.md`, `DEMO_SCRIPT.md`, `PREREGISTRATION.md`, `RESULTS.md`, `WALKTHROUGH.md`, `README.md`, `LICENSE`, `.env.example`, `.github/workflows/ci.yml`
+- [x] GitHub isolation (`shashank814331`), public repo `shashank814331/witness-toggle-wars`, `Flagsmith/flagsmith` starred, `main` (`7e4e113`) + `prereg-v1` pushed before Production start
 
 ### Parked for Human Credentials / Approvals (`RED`)
 
-- [ ] WeMakeDevs Discord clarifications (`/submit` form & centralised planning rule)
-- [ ] Flagsmith Cloud `Development` + `Production` setup (`flagsmith login`, `warehouse-connections/`, `ops/*.sh --env dev --apply`)
-- [ ] Live `Development` calibration (`sim/simulate.ts` $N=400 \times 3$ scenarios) & reconciliation
-- [ ] Merge branch to `main`, create `shashank814331` SSH remote, push, and tag `prereg-v1` before Production start
-- [ ] Deploy static bundle to Vercel with Production key & run `ops/*.sh --env prod --apply`
-- [ ] Production freeze (`29 Nov 14:00 IST`), export `evidence/prod/`, finalize `RESULTS.md`, record ≤3 min video, and submit
+- [ ] Flagsmith CLI auth (`.\node_modules\.bin\flagsmith.cmd login`) & `.env.development.local`
+- [ ] Live Flagsmith `Development` provisioning (`ops/provision.mjs --env dev --project 56540 --apply --start`) & `N=100 × 3` calibration
+- [ ] Deploy static bundle to Vercel with Production key & run `ops/provision.mjs --env prod --project 56540 --apply --start` + 2-browser live smoke test + `recruitment-qr.png`
+- [ ] Fri/Sat/Sun `09:00 IST` no-peeking checks (`ops/monitor.mjs`), Sunday `14:00 IST` freeze & export, finalize `RESULTS.md`, record ≤3 min video, and submit before `20:00 IST`
 
 ## Depth & Reliability Pass (`2026-11-26`)
 

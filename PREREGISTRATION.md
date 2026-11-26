@@ -1,7 +1,7 @@
 # Experiment Pre-Registration — Witness (Toggle Wars 2026, Track 01)
 
 - **Repository Owner:** `shashank814331` (`https://github.com/shashank814331/witness-toggle-wars`)
-- **Pre-Registration Version:** `prereg-v1` (must be git-tagged **before** Production experiments start)
+- **Pre-Registration Version:** `prereg-v1` (tagged on commit `7e4e11379d4495c9093993016beb4ce43868da94`, pushed `2026-11-26 20:31 IST` before Production experiments start)
 - **Window:** `26 Nov 2026` (Production start) → **`29 Nov 2026, 14:00 IST`** (fixed-horizon data freeze)
 
 ---
