@@ -187,7 +187,7 @@ function buildFormElements(challenge: ChallengeSpec): ViewElements {
   input.className = 'pattern-input';
   input.autocomplete = 'off';
   input.spellcheck = false;
-  input.maxLength = 220;
+  input.maxLength = 500;
   input.setAttribute('aria-describedby', 'pattern-help');
 
   const help = document.createElement('p');

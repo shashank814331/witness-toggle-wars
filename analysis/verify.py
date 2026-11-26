@@ -1,4 +1,4 @@
-"""Independent Bayesian Beta(1,1)-Binomial & SRM verification for Witness.
+"""Independent Bayesian Beta(1,1)-Binomial, SRM & ledger reconciliation for Witness.
 
 NOTE: Independent cross-check; priors may differ from Flagsmith's built-in
 Bayesian engine. Never mix SIMULATED Development data with Production data.
@@ -119,6 +119,50 @@ def summarize_ledger(csv_path: Path) -> dict[str, ArmSummary]:
     }
 
 
+def extract_counts_from_flagsmith_json(
+    json_path: Path,
+    metric_name: str = "core_set_completed",
+) -> dict[str, ArmSummary]:
+    """Extract control vs treatment exposures and metric conversions from Flagsmith results JSON."""
+    data = json.loads(json_path.read_text(encoding="utf-8"))
+    arms: dict[str, ArmSummary] = {}
+
+    variants = data.get("variants") or data.get("results") or []
+    for entry in variants:
+        key = str(entry.get("variant") or entry.get("name") or "").lower()
+        exposures = int(entry.get("exposures") or entry.get("sample_size") or 0)
+        conversions = int(entry.get("conversions") or 0)
+
+        metrics = entry.get("metrics")
+        if isinstance(metrics, dict) and metric_name in metrics:
+            conversions = int(metrics[metric_name].get("conversions") or conversions)
+        elif isinstance(metrics, list):
+            for item in metrics:
+                if item.get("name") == metric_name:
+                    conversions = int(item.get("conversions") or conversions)
+
+        label = "control" if "control" in key and "copy" not in key else "counterexample"
+        arms[label] = ArmSummary(exposures=exposures, conversions=conversions)
+
+    if "control" not in arms or "counterexample" not in arms:
+        raise ValueError(f"Could not parse both arms from {json_path}")
+    return arms
+
+
+def reconcile_exposures(
+    ledger: dict[str, ArmSummary],
+    flagsmith: dict[str, ArmSummary],
+) -> dict[str, Any]:
+    """Compare simulated ledger exposures against Flagsmith reported exposures."""
+    ctrl_diff = flagsmith["control"].exposures - ledger["control"].exposures
+    treat_diff = flagsmith["counterexample"].exposures - ledger["counterexample"].exposures
+    return {
+        "matched_exactly": ctrl_diff == 0 and treat_diff == 0,
+        "control_delta": ctrl_diff,
+        "counterexample_delta": treat_diff,
+    }
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Witness independent stats check")
     parser.add_argument("--control-n", type=int)
@@ -126,16 +170,28 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--treat-n", type=int)
     parser.add_argument("--treat-conv", type=int)
     parser.add_argument("--ledger-csv", type=Path)
+    parser.add_argument("--results-json", type=Path)
+    parser.add_argument("--metric-name", default="core_set_completed")
     parser.add_argument("--draws", type=int, default=200_000)
     return parser
 
 
 def main() -> None:
     args = _build_parser().parse_args()
-    if args.ledger_csv is not None:
-        summary = summarize_ledger(args.ledger_csv)
-        ctrl = summary["control"]
-        treat = summary["counterexample"]
+    ledger_summary = summarize_ledger(args.ledger_csv) if args.ledger_csv is not None else None
+    json_summary = (
+        extract_counts_from_flagsmith_json(args.results_json, args.metric_name)
+        if args.results_json is not None
+        else None
+    )
+
+    if json_summary is not None:
+        ctrl = json_summary["control"]
+        treat = json_summary["counterexample"]
+        source = f"Flagsmith export ({args.results_json})"
+    elif ledger_summary is not None:
+        ctrl = ledger_summary["control"]
+        treat = ledger_summary["counterexample"]
         source = f"SIMULATED ledger ({args.ledger_csv})"
     elif (
         args.control_n is not None
@@ -148,7 +204,7 @@ def main() -> None:
         source = "explicit counts"
     else:
         raise SystemExit(
-            "Provide either --ledger-csv or all four count flags (--control-n, --control-conv, --treat-n, --treat-conv)."
+            "Provide --results-json, --ledger-csv, or all four count flags."
         )
 
     report = analyze_counts(ctrl, treat, draws=args.draws)
@@ -165,6 +221,8 @@ def main() -> None:
         "verdict": report.verdict,
         "note": report.note,
     }
+    if ledger_summary is not None and json_summary is not None:
+        payload["reconciliation"] = reconcile_exposures(ledger_summary, json_summary)
     print(json.dumps(payload, indent=2))
 
 

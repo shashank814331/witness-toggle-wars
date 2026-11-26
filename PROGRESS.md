@@ -49,3 +49,29 @@
 
 - Added `.github/workflows/ci.yml`, `README.md`, `WALKTHROUGH.md`, `DEMO_SCRIPT.md`, `RESULTS.md`, updated `CHANGELOG.md` and `TEST_REPORT.md`, and cleaned `__pycache__` from git index.
 - All local quality gates verified green; Production Flagsmith `--apply`, `prereg-v1` tag, Vercel deployment, and `shashank814331` remote push parked in `.agent/parked.md`.
+
+## Complete Track 01 `.md` Specification Audit Checklist
+
+### Completed Locally (Verified)
+
+- [x] Consent screen with anonymous `wit_<uuid>` ID, 5 event names listed, and tracking-free Practice Mode (`src/consent.ts`)
+- [x] Core challenges C1 (ISO date + anchoring trap), C2 (Semver), and C3 Checkpoint (Hex colour, count-only for everyone) (`src/engine/challenges.ts`)
+- [x] Pure evaluator with `>200` chars rejection and `>50 ms` per-test ReDoS timeout (`src/engine/evaluate.ts`)
+- [x] Arm-specific renderers (`control` count-only vs `counterexample` exact phrasing) + `feedback_render_error` fallback (`src/ui/feedback.ts`)
+- [x] `"Show solution"` disabled until 2 non-syntax failures, fires `gave_up` once (`src/ui/challengeView.ts`)
+- [x] Finish view disclosing outcomes, arm, and `PREREGISTRATION.md` link (`src/ui/finish.ts`)
+- [x] Triggered exposure (`getExperimentFlag('feedback_style')` ONLY on 1st failed core attempt), `aa_canary` right after consent, once-per-identity guards, `pagehide`/`visibilitychange` flush (`src/experiment/*`)
+- [x] Offline/401 fallback to `control` with zero uncaught errors (`tests/e2e/witness.spec.ts`)
+- [x] WCAG AA accessibility & keyboard operation verified with `@axe-core/playwright` (`tests/e2e/witness.spec.ts`)
+- [x] Dry-run-by-default CLI v2 scripts (`ops/*.sh`) including `--key` enforcement & `prereg-v1` check
+- [x] Calibration simulator (`sim/model.md`, `sim/simulate.ts`, Production key refusal) & Python SRM + 200k Beta-Binomial + reconciliation script (`analysis/verify.py`)
+- [x] Required docs & CI: `PROJECT_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `PROGRESS.md`, `DECISIONS.md`, `TEST_REPORT.md`, `DEMO_SCRIPT.md`, `PREREGISTRATION.md`, `RESULTS.md`, `WALKTHROUGH.md`, `README.md`, `LICENSE`, `.env.example`, `.github/workflows/ci.yml`
+
+### Parked for Human Credentials / Approvals (`RED`)
+
+- [ ] WeMakeDevs Discord clarifications (`/submit` form & centralised planning rule)
+- [ ] Flagsmith Cloud `Development` + `Production` setup (`flagsmith login`, `warehouse-connections/`, `ops/*.sh --env dev --apply`)
+- [ ] Live `Development` calibration (`sim/simulate.ts` $N=400 \times 3$ scenarios) & reconciliation
+- [ ] Merge branch to `main`, create `shashank814331` SSH remote, push, and tag `prereg-v1` before Production start
+- [ ] Deploy static bundle to Vercel with Production key & run `ops/*.sh --env prod --apply`
+- [ ] Production freeze (`29 Nov 14:00 IST`), export `evidence/prod/`, finalize `RESULTS.md`, record ≤3 min video, and submit

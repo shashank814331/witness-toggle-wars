@@ -307,4 +307,34 @@ test.describe('Witness E2E, Flagsmith Triggers & Accessibility', () => {
     );
     expect(requestedIds.every((id) => id === 'wit_determinism_test_1')).toBe(true);
   });
+
+  test('rejects >200-char pattern cleanly and handles 401 invalid key in control fallback', async ({
+    page,
+  }) => {
+    await page.route('**/*flagsmith.com/**', async (route) => {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: '{"detail":"Invalid environment key"}',
+      });
+    });
+
+    const pageErrors: Error[] = [];
+    page.on('pageerror', (err) => {
+      pageErrors.push(err);
+    });
+
+    await page.goto(server.url);
+    await page.getByRole('button', { name: 'Start Experiment' }).click();
+
+    await page.getByLabel('Regular expression pattern').fill('a'.repeat(205));
+    await page.getByRole('button', { name: 'Check pattern' }).click();
+    await expect(page.getByRole('status')).toContainText('maximum length of 200');
+
+    await page.getByLabel('Regular expression pattern').fill('^\\d{4}-\\d{1,2}-\\d{2}$');
+    await page.getByRole('button', { name: 'Check pattern' }).click();
+    await expect(page.getByRole('status')).toContainText('7 of 8 checks passed.');
+    await expect(page.getByRole('status')).not.toContainText('2026-1-29');
+    expect(pageErrors).toHaveLength(0);
+  });
 });
