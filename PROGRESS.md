@@ -14,3 +14,9 @@
 - Documented endpoints (`edge.api.flagsmith.com`, `events.api.flagsmith.com`), `getExperimentFlag` server-source check, and `flushEvents()` guarantees in `docs/adr/0002-flagsmith-sdk-and-cli-contracts.md` and `DECISIONS.md`.
 - Live Flagsmith Cloud `warehouse-connections/` & metric direction enum check parked for user login in `.agent/parked.md`.
 - **Next:** Module 3 — Pure regex engine, 3 challenges, consent + Practice Mode, accessible UI, and unit tests.
+
+## Module 3: Pure Regex Engine, Challenges & Accessible UI (`2026-11-26`)
+
+- Implemented `src/engine/{challenges.ts,evaluate.ts}`, `src/consent.ts`, `src/ui/{challengeView.ts,feedback.ts,finish.ts}`, `src/styles.css`, `index.html`, and `src/main.ts`.
+- Verified `npm run typecheck`, `npm run lint`, `npm run test:unit` (13/13 tests passing), and `npm run build`.
+- **Next:** Module 4 — Flagsmith experiment integration and `ops/*.sh` scripts.

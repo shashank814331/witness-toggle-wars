@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://edge.api.flagsmith.com https://events.api.flagsmith.com https://api.flagsmith.com; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self';"
+    />
+    <title>Witness — Regex Debugging Experiment</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <div class="brand-row">
+          <span class="brand-name">Witness</span>
+          <span class="brand-tag">Regex Debugging Lab</span>
+        </div>
+        <p id="connection-status" class="status-pill" aria-live="polite" hidden></p>
+      </header>
+      <main id="app" class="app-main" tabindex="-1"></main>
+      <footer id="dev-footer" class="dev-footer" hidden></footer>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
