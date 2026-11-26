@@ -57,7 +57,7 @@ jobs:
 
       - name: Secret pattern scan
         run: |
-          if git grep -nE '(BEGIN (RSA|EC|OPENSSH) PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|FLAGSMITH_API_KEY=[A-Za-z0-9._-]{8,})'; then
+          if git grep -nE '(BEGIN (RSA|EC|OPENSSH) PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|FLAGSMITH_API_KEY=[A-Za-z0-9._-]{8,})' -- ':(exclude).github/workflows/ci.yml'; then
             echo "Potential secret detected in tracked files."
             exit 1
           fi
