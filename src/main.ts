@@ -2,8 +2,8 @@ import { renderConsentView } from './consent';
 import { CHALLENGES, type ChallengeId } from './engine/challenges';
 import { type DebugSnapshot, WitnessExperimentClient } from './experiment/flagsmith';
 import { renderChallengeView, type ChallengeOutcome } from './ui/challengeView';
-import type { FeedbackVariant } from './ui/feedback';
-import { renderFinishView } from './ui/finish';
+import { formatCounterexample, type FeedbackVariant } from './ui/feedback';
+import { type CounterfactualSample, renderFinishView } from './ui/finish';
 
 export interface SessionClient {
   startSession(consented: boolean): Promise<void>;
@@ -38,6 +38,8 @@ export function mountWitnessApp(
     c2: 'gave_up',
     c3: 'gave_up',
   };
+  const attempts: Record<ChallengeId, number> = { c1: 0, c2: 0, c3: 0 };
+  let firstFailureSample: CounterfactualSample | null = null;
   let consented = false;
   let challengeIdx = 0;
 
@@ -47,8 +49,10 @@ export function mountWitnessApp(
       void client.finishSession();
       renderFinishView(root, {
         outcomes,
+        attempts,
         consented,
         triggeredArm: client.getAssignedArm(),
+        firstFailureSample,
       });
       return;
     }
@@ -56,6 +60,20 @@ export function mountWitnessApp(
     renderChallengeView(root, spec, {
       totalChallenges: CHALLENGES.length,
       onCoreFailureTrigger: () => client.triggerFeedbackStyle(),
+      onAttempt: (id, result) => {
+        attempts[id] += 1;
+        if (
+          id !== 'c3' &&
+          !result.ok &&
+          firstFailureSample === null &&
+          result.firstFailure !== undefined
+        ) {
+          firstFailureSample = {
+            countSummary: `${String(result.passed)} of ${String(result.total)} checks passed.`,
+            counterexampleDetail: formatCounterexample(result.firstFailure),
+          };
+        }
+      },
       onSolved: (id) => {
         outcomes[id] = 'solved';
         client.recordChallengeSolved(id);

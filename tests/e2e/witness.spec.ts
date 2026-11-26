@@ -174,6 +174,8 @@ test.describe('Witness E2E, Flagsmith Triggers & Accessibility', () => {
 
     await expect(page.getByRole('heading', { name: 'Session complete' })).toBeVisible();
     await expect(page.locator('#app')).toContainText('counterexample');
+    await expect(page.locator('#app')).toContainText('Behind the experiment (what both arms saw)');
+    await expect(page.locator('#app')).toContainText('2 attempts');
 
     await expect.poll(() => recorded.events.map((e) => e.event)).toContain('transfer_solved');
     const eventNames = recorded.events.map((e) => e.event);
@@ -281,6 +283,13 @@ test.describe('Witness E2E, Flagsmith Triggers & Accessibility', () => {
       (v) => v.impact === 'serious' || v.impact === 'critical',
     );
     expect(seriousFinish).toEqual([]);
+
+    await page.emulateMedia({ colorScheme: 'dark' });
+    const darkFinishResults = await new AxeBuilder({ page }).analyze();
+    const seriousDark = darkFinishResults.violations.filter(
+      (v) => v.impact === 'serious' || v.impact === 'critical',
+    );
+    expect(seriousDark).toEqual([]);
   });
 
   test('preserves deterministic identity and variant across reload', async ({ page }) => {

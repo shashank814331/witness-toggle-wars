@@ -53,7 +53,7 @@ function resolveVariant(variant: string, onRenderError?: () => void): FeedbackVa
   return 'control';
 }
 
-function formatCounterexample(failure: FailingCase): string {
+export function formatCounterexample(failure: FailingCase): string {
   if (failure.expected) {
     return `\`${failure.input}\` should match, but your pattern did not match it.`;
   }

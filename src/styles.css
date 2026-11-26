@@ -133,6 +133,10 @@ button {
   cursor: pointer;
 }
 
+a {
+  color: var(--accent);
+}
+
 button:focus-visible,
 input:focus-visible,
 a:focus-visible {
@@ -294,5 +298,43 @@ button:disabled {
 @media (prefers-reduced-motion: reduce) {
   .feedback-box {
     animation: none;
+  }
+}
+
+.counterfactual-box {
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--bg);
+}
+
+.counterfactual-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-2);
+}
+
+.counterfactual-arm {
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--surface);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #f8fafc;
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --border: #475569;
+    --muted: #cbd5e1;
+    --accent: #60a5fa;
+    --accent-fg: #0f172a;
+    --danger: #fca5a5;
+    --danger-bg: #450a0a;
+    --success: #86efac;
+    --success-bg: #052e16;
   }
 }

@@ -10,6 +10,7 @@ export type ChallengeMachineState =
 export interface ChallengeViewCallbacks {
   readonly totalChallenges: number;
   readonly onCoreFailureTrigger: () => FeedbackVariant;
+  readonly onAttempt?: (challengeId: ChallengeId, result: EvaluationResult) => void;
   readonly onSolved: (challengeId: ChallengeId) => void;
   readonly onGaveUp: (challengeId: ChallengeId) => void;
   readonly onRenderError: () => void;
@@ -90,6 +91,10 @@ export function renderChallengeView(
       elements.input.value.length === 0 ||
       result.syntaxError !== undefined ||
       result.timedOut === true;
+
+    if (!isInputReject) {
+      callbacks.onAttempt?.(challenge.id, result);
+    }
 
     if (result.ok) {
       updateState('solved');
