@@ -93,7 +93,8 @@ Flagsmith Cloud (edge.api.flagsmith.com + events.api.flagsmith.com)
 4. **Provision Flagsmith Development environment (dry-run first, then `--apply`):**
    - Cross-platform turnkey Node script (Windows PowerShell / macOS / Linux):
      ```bash
-     npx flagsmith login
+     npx @flagsmith/cli@2.0.0 login
+     # (or `npx --no-install flagsmith login` after `npm ci`)
      # Set FLAGSMITH_DEV_ENV_KEY in your shell
      node ops/provision.mjs --env dev          # dry-run
      node ops/provision.mjs --env dev --apply  # creates flags, 5 metrics & experiments

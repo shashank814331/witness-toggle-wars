@@ -22,7 +22,7 @@ export function renderConsentView(root: HTMLElement, options: ConsentOptions): v
 
   const intro = document.createElement('p');
   intro.textContent =
-    'You will solve three short regular-expression debugging challenges. This site runs a controlled Flagsmith experiment to study which style of feedback helps developers most.';
+    'You will solve three short regular-expression debugging challenges. This site runs a controlled Flagsmith experiment to study which style of feedback helps developers most. Eligibility: 18+ only. No personal data is collected.';
 
   const dataLead = document.createElement('p');
   dataLead.className = 'muted-text';

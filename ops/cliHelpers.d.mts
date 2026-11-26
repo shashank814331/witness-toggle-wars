@@ -13,9 +13,19 @@ export interface OpsCliArgs {
   readonly start: boolean;
   readonly project: string;
   readonly experimentId: string;
+  readonly aaId: string;
 }
 
 export function parseOpsCliArgs(argv: readonly string[]): OpsCliArgs;
+
+export function formatInterimHealthRow(params: {
+  readonly timestampIst: string;
+  readonly controlExposures: number;
+  readonly counterexampleExposures: number;
+  readonly srmPValue: number;
+  readonly srmAlert: boolean;
+  readonly aaStatus: string;
+}): string;
 
 export function extractFeatureAndVariationIds(
   featureJson: unknown,

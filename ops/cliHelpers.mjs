@@ -32,6 +32,7 @@ export function parseOpsCliArgs(argv) {
   let start = false;
   let project = 'witness';
   let experimentId = '';
+  let aaId = '';
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -49,6 +50,9 @@ export function parseOpsCliArgs(argv) {
     } else if (arg === '--experiment-id' && next !== undefined) {
       experimentId = next;
       i += 1;
+    } else if (arg === '--aa-id' && next !== undefined) {
+      aaId = next;
+      i += 1;
     } else {
       throw new Error(`Unknown CLI argument: ${arg}`);
     }
@@ -57,7 +61,19 @@ export function parseOpsCliArgs(argv) {
   if (env !== 'dev' && env !== 'prod') {
     throw new Error(`--env must be "dev" or "prod" (received "${env}")`);
   }
-  return { env, apply, start, project, experimentId };
+  return { env, apply, start, project, experimentId, aaId };
+}
+
+export function formatInterimHealthRow({
+  timestampIst,
+  controlExposures,
+  counterexampleExposures,
+  srmPValue,
+  srmAlert,
+  aaStatus,
+}) {
+  const alertText = srmAlert ? 'ALERT (p < 0.001)' : 'OK';
+  return `| ${timestampIst} | ${String(controlExposures)} | ${String(counterexampleExposures)} | ${String(srmPValue)} | ${alertText} | ${aaStatus} |`;
 }
 
 export function extractFeatureAndVariationIds(featureJson, variationKey) {

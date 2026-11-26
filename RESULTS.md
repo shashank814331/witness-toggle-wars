@@ -21,7 +21,17 @@
 
 ---
 
-## 2. SIMULATED PIPELINE CALIBRATION (`Development` Environment — `SIMULATED`)
+## 2. Interim health checks — not for decisions
+
+> Updated by `node ops/monitor.mjs --env prod --experiment-id <id> --apply` on Fri, Sat, and Sun at 09:00 IST. Reports arm counts, SRM check, and `aa_canary` status only — **no treatment lift or win probability** until the Sunday `14:00 IST` freeze.
+
+| Timestamp (IST)  | `control` exposures | `counterexample` exposures | SRM $p$-value | SRM Alert | `aa_canary` status |
+| ---------------- | ------------------- | -------------------------- | ------------- | --------- | ------------------ |
+| _Pending launch_ | _—_                 | _—_                        | _—_           | _—_       | _—_                |
+
+---
+
+## 3. SIMULATED PIPELINE CALIBRATION (`Development` Environment — `SIMULATED`)
 
 > All values below come from synthetic browser bots (`sim/simulate.ts`) and are **not behavioral evidence**.
 

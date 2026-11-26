@@ -49,6 +49,8 @@ describe('Witness UI flow', () => {
     const practiceBtn = Array.from(root.querySelectorAll('button')).find((b) =>
       b.textContent.includes('Practice Without Tracking'),
     );
+    expect(root.textContent).toContain('18+ only');
+    expect(root.textContent).toContain('No personal data is collected');
     practiceBtn?.click();
 
     expect(startSession).toHaveBeenCalledWith(false);

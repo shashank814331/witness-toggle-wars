@@ -8,7 +8,7 @@ Accepted (2026-11-26)
 
 The Track 01 specification required verifying exact `@flagsmith/flagsmith` initialization options, event endpoints, synchronous `getExperimentFlag` behavior, and Flagsmith CLI v2.0.0 subcommands before implementing application code or ops scripts.
 
-## Verified Findings (Inspected from `node_modules/@flagsmith/flagsmith` & `npx flagsmith --help`)
+## Verified Findings (Inspected from `node_modules/@flagsmith/flagsmith` & `npx --no-install flagsmith --help`)
 
 1. **Package & Exports (`@flagsmith/flagsmith@12.6.0`):**
    - `index.d.ts` exports default singleton `flagsmith` and `createFlagsmithInstance<F, T>() => IFlagsmith<F, T>`.

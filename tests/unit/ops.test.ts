@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildExperimentPayload,
   extractFeatureAndVariationIds,
+  formatInterimHealthRow,
   parseOpsCliArgs,
   WITNESS_METRICS,
 } from '../../ops/cliHelpers.mjs';
@@ -14,17 +15,31 @@ describe('ops provisioning helpers', () => {
       start: false,
       project: 'witness',
       experimentId: '',
+      aaId: '',
     });
 
-    expect(parseOpsCliArgs(['--env', 'prod', '--apply', '--start'])).toEqual({
+    expect(parseOpsCliArgs(['--env', 'prod', '--apply', '--start', '--aa-id', '77'])).toEqual({
       env: 'prod',
       apply: true,
       start: true,
       project: 'witness',
       experimentId: '',
+      aaId: '77',
     });
 
     expect(() => parseOpsCliArgs(['--env', 'staging'])).toThrow(/dev.*prod/i);
+  });
+
+  it('formats interim health-check rows without treatment lift', () => {
+    const row = formatInterimHealthRow({
+      timestampIst: '27 Nov 2026, 09:00 IST',
+      controlExposures: 42,
+      counterexampleExposures: 44,
+      srmPValue: 0.8292,
+      srmAlert: false,
+      aaStatus: 'inconclusive',
+    });
+    expect(row).toBe('| 27 Nov 2026, 09:00 IST | 42 | 44 | 0.8292 | OK | inconclusive |');
   });
 
   it('requires keyed variation id and extracts feature/variation ids cleanly', () => {

@@ -148,7 +148,7 @@ function main() {
     opts.apply,
   );
   const aa = ensureFeatureWithVariant('aa_canary', 'control_copy', 'aa_b', opts.apply);
-  const metrics = ensureMetrics(opts.env, opts.apply);
+  const metrics = ensureMetrics(opts.apply ? envKey : opts.env, opts.apply);
   const primary = metrics.find((m) => m.name === 'core_set_completed');
   if (!primary) throw new Error('Primary metric missing');
 

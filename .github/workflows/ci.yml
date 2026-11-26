@@ -44,6 +44,7 @@ jobs:
           bash -n ops/*.sh
           node ops/provision.mjs --env dev
           node ops/export.mjs --env dev
+          node ops/monitor.mjs --env prod --experiment-id 1
           npm run build
 
       - name: Install Chromium for Playwright
