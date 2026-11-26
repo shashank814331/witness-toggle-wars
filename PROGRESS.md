@@ -32,3 +32,9 @@
 - Added `playwright.config.ts` (serial `workers: 1`, Chrome channel locally), `tests/e2e/staticServer.ts`, `scripts/run-e2e.mjs`, and `tests/e2e/witness.spec.ts`.
 - Verified **19/19 Vitest unit tests** and **6/6 Playwright + Axe E2E tests** passing (`TEST_REPORT.md`). Tightened CSS contrast tokens (`--danger: #991b1b`, `--success: #166534`) after Axe caught mid-fade contrast.
 - **Next:** Module 6 — `PREREGISTRATION.md` & `vercel.json` preparation (Production execution parked for user approval).
+
+## Module 6: Pre-Registration & Vercel Release Config (`2026-11-26`)
+
+- Finalized `PREREGISTRATION.md` (hypothesis, triggered exposure, metrics, power statement, fixed-horizon freeze `29 Nov 14:00 IST`, decision rule) and `vercel.json` (static Vite build + strict CSP/security headers).
+- Parked `git tag prereg-v1`, Production `ops/*.sh --apply`, and Vercel public deployment in `.agent/parked.md` per RED rules.
+- **Next:** Module 7 — Playwright calibration simulator (`sim/`) and Python SRM + Beta-Binomial verifier (`analysis/verify.py`).
