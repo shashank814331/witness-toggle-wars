@@ -26,3 +26,9 @@
 - Implemented `src/experiment/{identity.ts,events.ts,flagsmith.ts}`, `src/vite-env.d.ts`, updated `src/main.ts` with Dev-only footer, and dry-run-by-default `ops/{lib,setup-flags,create-metrics,create-experiment,start,refresh-and-export}.sh`.
 - Verified `tsc --noEmit`, `eslint .`, `vitest run` (19/19 tests), and `vite build`. Live Flagsmith Cloud `--apply` remains parked for user credentials.
 - **Next:** Module 5 — Playwright + `@axe-core/playwright` E2E, determinism, trigger timing, and blocked-network fallback tests.
+
+## Module 5: Full E2E, Determinism, Fallback & Accessibility Suite (`2026-11-26`)
+
+- Added `playwright.config.ts` (serial `workers: 1`, Chrome channel locally), `tests/e2e/staticServer.ts`, `scripts/run-e2e.mjs`, and `tests/e2e/witness.spec.ts`.
+- Verified **19/19 Vitest unit tests** and **6/6 Playwright + Axe E2E tests** passing (`TEST_REPORT.md`). Tightened CSS contrast tokens (`--danger: #991b1b`, `--success: #166534`) after Axe caught mid-fade contrast.
+- **Next:** Module 6 — `PREREGISTRATION.md` & `vercel.json` preparation (Production execution parked for user approval).

@@ -5,6 +5,7 @@ export default tseslint.config(
   {
     ignores: [
       'dist/**',
+      '.tmp-e2e-dist/**',
       'node_modules/**',
       'coverage/**',
       'playwright-report/**',
@@ -28,7 +29,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['eslint.config.js'],
+    files: ['eslint.config.js', 'scripts/**/*.mjs'],
     ...tseslint.configs.disableTypeChecked,
   },
 );
