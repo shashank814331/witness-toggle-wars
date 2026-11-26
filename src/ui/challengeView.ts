@@ -140,6 +140,7 @@ export function renderChallengeView(
 function buildTestTable(challenge: ChallengeSpec): HTMLTableElement {
   const table = document.createElement('table');
   table.className = 'test-table';
+  table.setAttribute('aria-label', `Test cases for ${challenge.title}`);
 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');

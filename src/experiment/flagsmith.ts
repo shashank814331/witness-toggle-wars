@@ -15,6 +15,7 @@ export const AA_CANARY_FLAG_NAME = 'aa_canary';
 
 export interface DebugSnapshot {
   readonly env: 'development' | 'production';
+  readonly source: FlagSource;
   readonly consented: boolean;
   readonly variant: FeedbackVariant | 'untriggered';
   readonly inExperiment: boolean;
@@ -36,6 +37,21 @@ const DEFAULT_WITNESS_FLAGS: NonNullable<IInitConfig['defaultFlags']> = {
   aa_canary: { enabled: true, value: 'control' },
 };
 
+type KeepaliveFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+
+function buildKeepaliveFetch(): KeepaliveFetch | undefined {
+  if (typeof window === 'undefined' || typeof window.fetch !== 'function') {
+    return undefined;
+  }
+  const nativeFetch = window.fetch.bind(window);
+  return (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    const method = init?.method?.toUpperCase() ?? 'GET';
+    const nextInit: RequestInit =
+      method === 'POST' ? { ...(init ?? {}), keepalive: true } : (init ?? {});
+    return nativeFetch(input, nextInit);
+  };
+}
+
 /**
  * Coordinates Flagsmith initialization, consent isolation, triggered exposure, and event flushing.
  */
@@ -44,7 +60,8 @@ export class WitnessExperimentClient implements SessionClient {
   private sdk: IFlagsmith | null = null;
   private recorder: EventRecorder | null = null;
   private consented = false;
-  private initialized = false;
+  private identifySettled = false;
+  private serverReady = false;
   private cachedVariant: FeedbackVariant | null = null;
   private inExperiment = false;
   private lifecycleBound = false;
@@ -56,6 +73,8 @@ export class WitnessExperimentClient implements SessionClient {
   public async startSession(consented: boolean): Promise<void> {
     this.consented = consented;
     if (!consented) {
+      this.identifySettled = true;
+      this.serverReady = false;
       this.emitDebug();
       return;
     }
@@ -67,20 +86,24 @@ export class WitnessExperimentClient implements SessionClient {
     this.bindFlushLifecycle();
 
     if (this.options.envKey.trim().length === 0) {
+      this.identifySettled = true;
+      this.serverReady = false;
       this.emitDebug();
       return;
     }
 
     try {
       await sdk.init(this.buildInitConfig());
-      this.initialized = true;
       await sdk.identify(vid);
-      if (sdk.loadingState?.source === FlagSource.SERVER) {
+      this.serverReady = sdk.loadingState?.source === FlagSource.SERVER;
+      if (this.serverReady) {
         sdk.getExperimentFlag(AA_CANARY_FLAG_NAME);
       }
     } catch {
       // Offline/network errors must never block play; fallback stays control without exposure.
-      this.initialized = false;
+      this.serverReady = false;
+    } finally {
+      this.identifySettled = true;
     }
     this.emitDebug();
   }
@@ -92,7 +115,12 @@ export class WitnessExperimentClient implements SessionClient {
     if (this.cachedVariant !== null) {
       return this.cachedVariant;
     }
-    if (this.sdk === null || !this.initialized) {
+    if (this.sdk === null || !this.identifySettled) {
+      // Do not permanently cache control if identify() is still in-flight; stay non-blocking.
+      this.emitDebug();
+      return 'control';
+    }
+    if (!this.serverReady) {
       this.cachedVariant = 'control';
       this.emitDebug();
       return 'control';
@@ -132,7 +160,7 @@ export class WitnessExperimentClient implements SessionClient {
   }
 
   public async finishSession(): Promise<void> {
-    if (!this.consented || this.sdk === null || !this.initialized) {
+    if (!this.consented || this.sdk === null || !this.serverReady) {
       return;
     }
     try {
@@ -148,12 +176,14 @@ export class WitnessExperimentClient implements SessionClient {
   }
 
   private buildInitConfig(): IInitConfig {
+    const keepaliveFetch = buildKeepaliveFetch();
     const config: IInitConfig = {
       environmentID: this.options.envKey.trim(),
       enableEvents: true,
       cacheFlags: false,
       preventFetch: true,
       defaultFlags: DEFAULT_WITNESS_FLAGS,
+      ...(keepaliveFetch !== undefined ? { fetch: keepaliveFetch } : {}),
       onError: () => undefined,
     };
     if (this.options.apiUrl !== undefined && this.options.apiUrl.length > 0) {
@@ -194,6 +224,7 @@ export class WitnessExperimentClient implements SessionClient {
   private emitDebug(): void {
     this.options.onDebugUpdate?.({
       env: this.options.appEnv,
+      source: this.sdk?.loadingState?.source ?? FlagSource.NONE,
       consented: this.consented,
       variant: this.cachedVariant ?? 'untriggered',
       inExperiment: this.inExperiment,

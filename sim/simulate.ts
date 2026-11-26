@@ -28,9 +28,50 @@ export interface LedgerRow {
   readonly label: 'SIMULATED';
 }
 
-const B_CONTROL = 0.35;
+export const B_CONTROL = 0.35;
 const GIVE_UP_HAZARD = 0.15;
 const MAX_ATTEMPTS = 12;
+
+export interface InMemorySimOutcome {
+  readonly arm: 'control' | 'counterexample';
+  readonly coreSetCompleted: boolean;
+  readonly transferSolved: boolean;
+}
+
+/**
+ * Pure simulation helper used for calibrated generative model verification.
+ */
+export function simulateUserInMemory(
+  theta: number,
+  delta: number,
+  arm: 'control' | 'counterexample',
+  rng: () => number,
+): InMemorySimOutcome {
+  const coreProb = arm === 'counterexample' ? theta * B_CONTROL * (1 + delta) : theta * B_CONTROL;
+  const playCore = (): boolean => {
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+      if (attempt > 1 && rng() < coreProb) {
+        return true;
+      }
+      if (attempt >= 2 && rng() < GIVE_UP_HAZARD) {
+        return false;
+      }
+    }
+    return false;
+  };
+
+  const c1 = playCore();
+  const c2 = playCore();
+  let transferSolved = false;
+  const transferProb = theta * 0.5;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+    if (rng() < transferProb) {
+      transferSolved = true;
+      break;
+    }
+  }
+  return { arm, coreSetCompleted: c1 && c2, transferSolved };
+}
 
 /**
  * Refuses simulation if environment configuration risks contaminating Production.

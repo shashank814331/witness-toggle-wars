@@ -42,6 +42,8 @@ jobs:
           npm run test:unit
           python -m unittest discover -s tests/unit -p "test_*.py" -v
           bash -n ops/*.sh
+          node ops/provision.mjs --env dev
+          node ops/export.mjs --env dev
           npm run build
 
       - name: Install Chromium for Playwright

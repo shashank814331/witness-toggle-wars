@@ -15,8 +15,12 @@ export default tseslint.config(
     ],
   },
   js.configs.recommended,
-  ...tseslint.configs.strictTypeChecked,
+  ...tseslint.configs.strictTypeChecked.map((cfg) => ({
+    ...cfg,
+    files: ['**/*.ts'],
+  })),
   {
+    files: ['**/*.ts'],
     languageOptions: {
       parserOptions: {
         projectService: true,
@@ -30,7 +34,11 @@ export default tseslint.config(
     },
   },
   {
-    files: ['eslint.config.js', 'scripts/**/*.mjs'],
-    ...tseslint.configs.disableTypeChecked,
+    files: ['eslint.config.js', 'scripts/**/*.mjs', 'ops/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        console: 'readonly',
+      },
+    },
   },
 );

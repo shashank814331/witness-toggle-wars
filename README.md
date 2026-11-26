@@ -91,12 +91,14 @@ Flagsmith Cloud (edge.api.flagsmith.com + events.api.flagsmith.com)
    npm run build
    ```
 4. **Provision Flagsmith Development environment (dry-run first, then `--apply`):**
-   ```bash
-   npx flagsmith login
-   export FLAGSMITH_DEV_ENV_KEY="<dev-key>"
-   ./ops/setup-flags.sh --env dev --apply
-   ./ops/create-metrics.sh --env dev --apply
-   ```
+   - Cross-platform turnkey Node script (Windows PowerShell / macOS / Linux):
+     ```bash
+     npx flagsmith login
+     # Set FLAGSMITH_DEV_ENV_KEY in your shell
+     node ops/provision.mjs --env dev          # dry-run
+     node ops/provision.mjs --env dev --apply  # creates flags, 5 metrics & experiments
+     ```
+   - Equivalent Bash scripts (`ops/setup-flags.sh`, `ops/create-metrics.sh`, `ops/create-experiment.sh`, `ops/start.sh`, `ops/refresh-and-export.sh`) are also included.
 5. **Run Development calibration simulation & independent verification:**
    ```bash
    npx tsx sim/simulate.ts --delta 0 --seed 1 --n 400

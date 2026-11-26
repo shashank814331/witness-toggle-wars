@@ -95,7 +95,7 @@ function updateDevFooter(footerEl: HTMLElement | null, snapshot: DebugSnapshot):
     return;
   }
   footerEl.hidden = false;
-  footerEl.textContent = `env=${snapshot.env} | consented=${String(snapshot.consented)} | variant=${snapshot.variant} | inExperiment=${String(snapshot.inExperiment)} | events=${String(snapshot.queuedEvents)}`;
+  footerEl.textContent = `env=${snapshot.env} | source=${snapshot.source} | consented=${String(snapshot.consented)} | variant=${snapshot.variant} | inExperiment=${String(snapshot.inExperiment)} | events=${String(snapshot.queuedEvents)}`;
 }
 
 function bootstrapBrowser(): void {

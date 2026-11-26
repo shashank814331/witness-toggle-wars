@@ -75,3 +75,9 @@
 - [ ] Merge branch to `main`, create `shashank814331` SSH remote, push, and tag `prereg-v1` before Production start
 - [ ] Deploy static bundle to Vercel with Production key & run `ops/*.sh --env prod --apply`
 - [ ] Production freeze (`29 Nov 14:00 IST`), export `evidence/prod/`, finalize `RESULTS.md`, record ≤3 min video, and submit
+
+## Depth & Reliability Pass (`2026-11-26`)
+
+- Fixed in-flight `identify()` race condition in `src/experiment/flagsmith.ts` (`identifySettled` vs `serverReady`) and added `keepalive: true` `fetch` support for reliable `pagehide` event delivery.
+- Added cross-platform `ops/provision.mjs`, `ops/export.mjs`, `ops/cliHelpers.mjs` (`ops/cliHelpers.d.mts`) with automatic ID resolution, dry-run defaults, and `prereg-v1` tag gate.
+- Expanded unit/calibration test coverage (`tests/unit/ops.test.ts`, multi-scenario calibration verification in `tests/unit/sim.test.ts`, in-flight `identify` test in `tests/unit/experiment.test.ts`).

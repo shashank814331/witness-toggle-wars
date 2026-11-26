@@ -206,4 +206,57 @@ describe('identity and experiment orchestration', () => {
     expect(client.triggerFeedbackStyle()).toBe('control');
     expect(mock.getExperimentFlag).not.toHaveBeenCalled();
   });
+
+  it('does not lock cachedVariant to control while identify() is still in flight', async () => {
+    const storage = createMemoryStorage();
+    let resolveIdentify: (() => void) | undefined;
+    const identifyPromise = new Promise<void>((res) => {
+      resolveIdentify = res;
+    });
+
+    const init = vi.fn().mockResolvedValue(undefined);
+    const identify = vi.fn().mockReturnValue(identifyPromise);
+    const getExperimentFlag = vi.fn().mockReturnValue({
+      enabled: true,
+      value: 'counterexample',
+      experiment: { id: 2, name: 'exp', inExperiment: true },
+    });
+    const sdk = {
+      init,
+      identify,
+      getExperimentFlag,
+      trackEvent: vi.fn(),
+      flushEvents: vi.fn().mockResolvedValue(undefined),
+      loadingState: {
+        error: null,
+        isFetching: false,
+        isLoading: false,
+        source: FlagSource.DEFAULT_FLAGS,
+      },
+    } as unknown as IFlagsmith;
+
+    const client = new WitnessExperimentClient({
+      envKey: 'ser.dev_test_key',
+      appEnv: 'development',
+      storage,
+      createSdk: (): IFlagsmith => sdk,
+    });
+
+    const startPromise = client.startSession(true);
+    // Failure submitted before identify resolves -> returns control safely without poisoning cache
+    expect(client.triggerFeedbackStyle()).toBe('control');
+
+    // Now identify settles with SERVER source
+    sdk.loadingState = {
+      error: null,
+      isFetching: false,
+      isLoading: false,
+      source: FlagSource.SERVER,
+    };
+    resolveIdentify?.();
+    await startPromise;
+
+    expect(client.triggerFeedbackStyle()).toBe('counterexample');
+    expect(getExperimentFlag).toHaveBeenCalledWith('feedback_style');
+  });
 });
