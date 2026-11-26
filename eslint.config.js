@@ -6,6 +6,7 @@ export default tseslint.config(
     ignores: [
       'dist/**',
       '.tmp-e2e-dist/**',
+      '.tmp-sim-dist/**',
       'node_modules/**',
       'coverage/**',
       'playwright-report/**',

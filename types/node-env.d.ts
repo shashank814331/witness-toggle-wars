@@ -1,6 +1,7 @@
 declare const process: {
   readonly env: Record<string, string | undefined>;
   readonly argv: readonly string[];
+  readonly execPath: string;
   cwd(): string;
   exit(code?: number): never;
 };
@@ -11,6 +12,21 @@ declare module 'node:fs' {
   export function readFileSync(path: string, encoding: 'utf8'): string;
   export function readFileSync(path: string): Uint8Array;
   export function writeFileSync(path: string, data: string, encoding: 'utf8'): void;
+  export function rmSync(
+    path: string,
+    options?: { readonly recursive?: boolean; readonly force?: boolean },
+  ): void;
+}
+
+declare module 'node:child_process' {
+  export function execFileSync(
+    file: string,
+    args: readonly string[],
+    options?: {
+      readonly stdio?: 'inherit' | 'pipe';
+      readonly env?: Record<string, string | undefined>;
+    },
+  ): void;
 }
 
 declare module 'node:path' {

@@ -38,3 +38,9 @@
 - Finalized `PREREGISTRATION.md` (hypothesis, triggered exposure, metrics, power statement, fixed-horizon freeze `29 Nov 14:00 IST`, decision rule) and `vercel.json` (static Vite build + strict CSP/security headers).
 - Parked `git tag prereg-v1`, Production `ops/*.sh --apply`, and Vercel public deployment in `.agent/parked.md` per RED rules.
 - **Next:** Module 7 — Playwright calibration simulator (`sim/`) and Python SRM + Beta-Binomial verifier (`analysis/verify.py`).
+
+## Module 7: Calibration Simulator & Python Verification (`2026-11-26`)
+
+- Implemented `sim/model.md`, `sim/simulate.ts` (strictly blocks Production env/keys; builds isolated `.tmp-sim-dist`; waits for `#connection-status` settle), `analysis/verify.py` (`scipy.stats.chisquare` SRM + 200k Beta(1,1)-Binomial Monte Carlo), `tests/unit/sim.test.ts`, and `tests/unit/test_verify.py`.
+- Verified 21/21 Vitest unit tests, 3/3 Python unit tests, and 6-user `--mock-local` Chrome calibration dry run + `analysis/verify.py` reconciliation (`3` control / `3` counterexample, `srm_p_value = 1.0`).
+- **Next:** Module 8 — CI workflow, `README.md`, `WALKTHROUGH.md`, `DEMO_SCRIPT.md`, `RESULTS.md` template, and final audit.
