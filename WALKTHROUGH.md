@@ -20,8 +20,15 @@ A zero-framework static TypeScript bundle (`~60 kB` uncompressed JS) eliminates 
 ## 3. Reproduction & Common Failure Modes
 
 - **Variation missing `--key`:** Flagsmith ignores exposures for unkeyed multivariate options. `ops/setup-flags.sh` explicitly passes `--key` and verifies via `flagsmith feature get --json`.
-- **Events dropped on tab close:** `flagsmith.ts` attaches `pagehide` and `visibilitychange` (`hidden`) handlers calling `flushEvents()`.
+- **Events dropped on tab close:** `flagsmith.ts` attaches `pagehide` and `visibilitychange` (`hidden`) handlers calling `flushEvents()` over `keepalive: true` `fetch`.
 - **Network blocked or Flagsmith down:** `WitnessExperimentClient` initializes with `defaultFlags`, catches `identify()` failures cleanly, never emits bogus `$flag_exposure` (since `loadingState.source !== FlagSource.SERVER`), and keeps challenges playable in `control`.
+
+### Alignment With "How to Win Toggle Wars" (4 Wiring Mistakes Avoided)
+
+1. **Unstable identifier:** Persists `wit_<uuid>` in `localStorage['witness.vid']` (`identity.ts`), verified across reload in Playwright E2E.
+2. **Per-request SDK instantiation:** Instantiates and initializes `createFlagsmithInstance()` once per session (`flagsmith.ts`), never inside attempt loops.
+3. **Missing fallback handlers:** Defines `defaultFlags`, catches `identify()` errors/401s, falls back to `control` without crashing, and logs `feedback_render_error` on unknown variant values.
+4. **Peeking bias:** Pre-registers a fixed-horizon freeze (`29 Nov 14:00 IST`) in `PREREGISTRATION.md`, pairs with `aa_canary`, and verifies SRM + intervals via `analysis/verify.py`.
 
 ---
 
