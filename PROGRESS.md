@@ -20,3 +20,9 @@
 - Implemented `src/engine/{challenges.ts,evaluate.ts}`, `src/consent.ts`, `src/ui/{challengeView.ts,feedback.ts,finish.ts}`, `src/styles.css`, `index.html`, and `src/main.ts`.
 - Verified `npm run typecheck`, `npm run lint`, `npm run test:unit` (13/13 tests passing), and `npm run build`.
 - **Next:** Module 4 — Flagsmith experiment integration and `ops/*.sh` scripts.
+
+## Module 4: Flagsmith Integration & Ops Tooling (`2026-11-26`)
+
+- Implemented `src/experiment/{identity.ts,events.ts,flagsmith.ts}`, `src/vite-env.d.ts`, updated `src/main.ts` with Dev-only footer, and dry-run-by-default `ops/{lib,setup-flags,create-metrics,create-experiment,start,refresh-and-export}.sh`.
+- Verified `tsc --noEmit`, `eslint .`, `vitest run` (19/19 tests), and `vite build`. Live Flagsmith Cloud `--apply` remains parked for user credentials.
+- **Next:** Module 5 — Playwright + `@axe-core/playwright` E2E, determinism, trigger timing, and blocked-network fallback tests.
