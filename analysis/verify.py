@@ -101,22 +101,81 @@ def analyze_counts(
     )
 
 
-def summarize_ledger(csv_path: Path) -> dict[str, ArmSummary]:
+def summarize_ledger(csv_paths: Path | list[Path]) -> dict[str, ArmSummary]:
     """Summarize simulated ledger CSV counts by observed arm."""
+    paths = csv_paths if isinstance(csv_paths, list) else [csv_paths]
     counts = {"control": [0, 0], "counterexample": [0, 0]}
-    with csv_path.open("r", encoding="utf-8", newline="") as handle:
-        reader = csv.DictReader(handle)
-        for row in reader:
-            arm = row.get("arm_observed", "")
-            if arm not in counts:
-                continue
-            counts[arm][0] += 1
-            if row.get("core_set_completed") == "true":
-                counts[arm][1] += 1
+    for csv_path in paths:
+        with csv_path.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                arm = row.get("arm_observed", "")
+                if arm not in counts:
+                    continue
+                counts[arm][0] += 1
+                if row.get("core_set_completed") == "true":
+                    counts[arm][1] += 1
     return {
         arm: ArmSummary(exposures=vals[0], conversions=vals[1])
         for arm, vals in counts.items()
     }
+
+
+def _arm_label(key: str) -> str:
+    lowered = key.lower()
+    return "control" if "control" in lowered and "copy" not in lowered else "counterexample"
+
+
+def _extract_from_cloud_payload(
+    data: dict[str, Any],
+    metric_name: str,
+) -> dict[str, ArmSummary]:
+    payload = data["results"]["payload"]
+    metrics_list = payload.get("metrics") or []
+    metric_defs = data.get("metric_definitions") or []
+
+    target_metric_id: int | None = None
+    for item in metric_defs:
+        if item.get("metric_name") == metric_name or item.get("name") == metric_name:
+            target_metric_id = int(item.get("metric") or item.get("id"))
+            break
+
+    selected_metric: dict[str, Any] | None = None
+    if target_metric_id is not None:
+        for entry in metrics_list:
+            if entry.get("metric_id") == target_metric_id:
+                selected_metric = entry
+                break
+    elif metrics_list and metric_name == "core_set_completed":
+        selected_metric = metrics_list[0]
+
+    arms: dict[str, ArmSummary] = {}
+    if selected_metric is not None and isinstance(selected_metric.get("variants"), dict):
+        for var_key, stats in selected_metric["variants"].items():
+            if not isinstance(stats, dict):
+                continue
+            exposures = int(stats.get("n") or 0)
+            conversions = int(round(float(stats.get("sum") or 0)))
+            arms[_arm_label(str(var_key))] = ArmSummary(
+                exposures=exposures, conversions=conversions
+            )
+
+    points = (payload.get("exposures_timeseries") or {}).get("points") or []
+    ts_totals: dict[str, int] = {}
+    for pt in points:
+        for var_key, cnt in (pt.get("new_identities") or {}).items():
+            label = _arm_label(str(var_key))
+            ts_totals[label] = ts_totals.get(label, 0) + int(cnt or 0)
+    for label, total in ts_totals.items():
+        if label not in arms:
+            arms[label] = ArmSummary(exposures=total, conversions=0)
+
+    if not arms:
+        raise ValueError("Could not parse any arm counts from Cloud payload")
+    for required_arm in ("control", "counterexample"):
+        if required_arm not in arms:
+            arms[required_arm] = ArmSummary(exposures=0, conversions=0)
+    return arms
 
 
 def extract_counts_from_flagsmith_json(
@@ -125,10 +184,15 @@ def extract_counts_from_flagsmith_json(
 ) -> dict[str, ArmSummary]:
     """Extract control vs treatment exposures and metric conversions from Flagsmith results JSON."""
     data = json.loads(json_path.read_text(encoding="utf-8"))
+    if isinstance(data.get("results"), dict) and isinstance(data["results"].get("payload"), dict):
+        return _extract_from_cloud_payload(data, metric_name)
+
     arms: dict[str, ArmSummary] = {}
 
     variants = data.get("variants") or data.get("results") or []
     for entry in variants:
+        if not isinstance(entry, dict):
+            continue
         key = str(entry.get("variant") or entry.get("name") or "").lower()
         exposures = int(entry.get("exposures") or entry.get("sample_size") or 0)
         conversions = int(entry.get("conversions") or 0)
@@ -141,8 +205,7 @@ def extract_counts_from_flagsmith_json(
                 if item.get("name") == metric_name:
                     conversions = int(item.get("conversions") or conversions)
 
-        label = "control" if "control" in key and "copy" not in key else "counterexample"
-        arms[label] = ArmSummary(exposures=exposures, conversions=conversions)
+        arms[_arm_label(key)] = ArmSummary(exposures=exposures, conversions=conversions)
 
     if "control" not in arms or "counterexample" not in arms:
         raise ValueError(f"Could not parse both arms from {json_path}")
@@ -169,7 +232,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--control-conv", type=int)
     parser.add_argument("--treat-n", type=int)
     parser.add_argument("--treat-conv", type=int)
-    parser.add_argument("--ledger-csv", type=Path)
+    parser.add_argument("--ledger-csv", type=Path, nargs="+")
     parser.add_argument("--results-json", type=Path)
     parser.add_argument("--metric-name", default="core_set_completed")
     parser.add_argument("--draws", type=int, default=200_000)

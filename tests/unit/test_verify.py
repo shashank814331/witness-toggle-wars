@@ -69,6 +69,65 @@ class VerifyStatsTests(unittest.TestCase):
         self.assertEqual(rec["control_delta"], 0)
         self.assertEqual(rec["counterexample_delta"], 1)
 
+    def test_extracts_live_flagsmith_cloud_nested_payload(self) -> None:
+        cloud_sample = {
+            "metric_definitions": [
+                {"metric": 1482, "metric_name": "core_set_completed"},
+                {"metric": 1483, "metric_name": "challenge1_solved"},
+            ],
+            "results": {
+                "payload": {
+                    "metrics": [
+                        {
+                            "metric_id": 1482,
+                            "variants": {
+                                "control": {"n": 48, "sum": 14.0},
+                                "counterexample": {"n": 52, "sum": 22.0},
+                            },
+                        },
+                        {
+                            "metric_id": 1483,
+                            "variants": {
+                                "control": {"n": 48, "sum": 30.0},
+                                "counterexample": {"n": 52, "sum": 38.0},
+                            },
+                        },
+                    ],
+                    "exposures_timeseries": {"points": []},
+                }
+            },
+        }
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            json_path = Path(tmp_dir) / "cloud_results.json"
+            json_path.write_text(json.dumps(cloud_sample), encoding="utf-8")
+            parsed = extract_counts_from_flagsmith_json(json_path, "core_set_completed")
+
+        self.assertEqual(parsed["control"], ArmSummary(exposures=48, conversions=14))
+        self.assertEqual(parsed["counterexample"], ArmSummary(exposures=52, conversions=22))
+
+    def test_cloud_payload_defaults_unpopulated_arm_to_zero(self) -> None:
+        cloud_single = {
+            "metric_definitions": [{"metric": 1714, "metric_name": "core_set_completed"}],
+            "results": {
+                "payload": {
+                    "metrics": [
+                        {
+                            "metric_id": 1714,
+                            "variants": {"counterexample": {"n": 3, "sum": 3.0}},
+                        }
+                    ],
+                    "exposures_timeseries": {"points": []},
+                }
+            },
+        }
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            json_path = Path(tmp_dir) / "single_arm.json"
+            json_path.write_text(json.dumps(cloud_single), encoding="utf-8")
+            parsed = extract_counts_from_flagsmith_json(json_path, "core_set_completed")
+
+        self.assertEqual(parsed["control"], ArmSummary(exposures=0, conversions=0))
+        self.assertEqual(parsed["counterexample"], ArmSummary(exposures=3, conversions=3))
+
 
 if __name__ == "__main__":
     unittest.main()

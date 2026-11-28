@@ -274,6 +274,24 @@ async function simulateUser(
   const context = await browser.newContext();
   const page = await context.newPage();
 
+  let inFlightEvents = 0;
+  let finishedEventPosts = 0;
+  if (!config.mockLocal) {
+    page.on('request', (req) => {
+      if (req.url().includes('events.api.flagsmith.com')) {
+        inFlightEvents += 1;
+      }
+    });
+    const onEventDone = (req: { url: () => string }): void => {
+      if (req.url().includes('events.api.flagsmith.com')) {
+        inFlightEvents = Math.max(0, inFlightEvents - 1);
+        finishedEventPosts += 1;
+      }
+    };
+    page.on('requestfinished', onEventDone);
+    page.on('requestfailed', onEventDone);
+  }
+
   if (config.mockLocal) {
     await attachMockRoutes(page);
   }
@@ -328,6 +346,13 @@ async function simulateUser(
     observedArm,
   );
 
+  await page.getByRole('heading', { name: 'Session complete' }).waitFor({ state: 'visible' });
+  if (!config.mockLocal) {
+    const deadline = Date.now() + 8000;
+    while (Date.now() < deadline && (inFlightEvents > 0 || finishedEventPosts === 0)) {
+      await page.waitForTimeout(100);
+    }
+  }
   await context.close();
 
   return {
@@ -394,6 +419,11 @@ async function main(): Promise<void> {
   try {
     for (let i = 1; i <= config.count; i += 1) {
       rows.push(await simulateUser(browser, server.url, config, i, rng));
+      if (i % 25 === 0 || i === config.count) {
+        console.log(
+          `[sim d=${String(config.delta)}] completed ${String(i)}/${String(config.count)}`,
+        );
+      }
     }
   } finally {
     await browser.close();

@@ -59,6 +59,16 @@ describe('ops provisioning helpers', () => {
         'counterexample',
       ),
     ).toThrow(/missing required key/i);
+
+    expect(
+      extractFeatureAndVariationIds(
+        { id: 42, variants: [{ id: 99, key: 'counterexample', value: 'counterexample' }] },
+        'counterexample',
+      ),
+    ).toEqual({
+      featureId: 42,
+      variationId: 99,
+    });
   });
 
   it('constructs 50/50 100%-rollout experiment payload with all 5 case-sensitive metrics', () => {
@@ -68,6 +78,14 @@ describe('ops provisioning helpers', () => {
       'gave_up',
       'transfer_solved',
       'feedback_render_error',
+    ]);
+    expect(WITNESS_METRICS.map((m) => m.direction)).toEqual(['up', 'up', 'down', 'up', 'down']);
+    expect(WITNESS_METRICS.map((m) => m.expectedDirection)).toEqual([
+      'increase',
+      'increase',
+      'decrease',
+      'not_decrease',
+      'not_increase',
     ]);
 
     const payload = buildExperimentPayload({
