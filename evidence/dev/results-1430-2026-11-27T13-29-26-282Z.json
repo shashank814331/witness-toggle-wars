@@ -1,0 +1,71 @@
+{
+  "results": {
+    "as_of": "2026-11-27T13:29:27.202476Z",
+    "last_error_at": null,
+    "refresh_requested_at": "2026-11-27T13:29:27.156575Z",
+    "payload": {
+      "metrics": [
+        {
+          "variants": {
+            "aa_b": {
+              "n": 145,
+              "sum": 54,
+              "sum_squares": 54
+            },
+            "control": {
+              "n": 155,
+              "sum": 46,
+              "sum_squares": 46
+            }
+          },
+          "inference": {
+            "aa_b": {
+              "lift": 0.2548725637181411,
+              "ci_low": -0.14993433512127935,
+              "ci_high": 0.6596794625575615,
+              "chance_to_win": 0.8914028430996609
+            }
+          },
+          "metric_id": 1482,
+          "conversions_timeseries": {
+            "points": [
+              {
+                "bucket": "2026-11-27T13:00:00+00:00",
+                "converted_identities": {
+                  "aa_b": 54,
+                  "control": 46
+                }
+              }
+            ],
+            "granularity": "hour"
+          }
+        }
+      ],
+      "srm_p_value": null,
+      "exposures_timeseries": {
+        "points": [
+          {
+            "bucket": "2026-11-27T13:00:00+00:00",
+            "new_identities": {
+              "aa_b": 145,
+              "control": 155
+            }
+          }
+        ],
+        "granularity": "hour"
+      }
+    },
+    "is_final": false
+  },
+  "metric_definitions": [
+    {
+      "id": 1752,
+      "metric": 1482,
+      "metric_name": "core_set_completed",
+      "aggregation": "occurrence",
+      "direction": "up",
+      "expected_direction": "increase",
+      "created_at": "2026-11-27T13:10:48.076869Z"
+    }
+  ]
+}

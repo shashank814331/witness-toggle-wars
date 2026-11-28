@@ -24,7 +24,10 @@
 6. **Determinism across reload:** Persisted `witness.vid` sends identical identifier across reload and receives deterministic arm assignment.
 7. **200-char input guard & HTTP 401 invalid-key fallback:** Submitting 205 characters displays the length error cleanly, and HTTP 401 from Flagsmith degrades safely to `control` with 0 uncaught errors.
 
-## Pending Live Environment Tests (Parked for User Credentials)
+## Live Cloud Environment Verification (`2026-11-27` – `2026-11-28`)
 
-- Live Flagsmith `Development` environment integration (`identify` -> `inExperiment: true` -> `results/refresh/` showing exposures in both arms).
-- Live calibrated simulation reconciliation (`N = 400 × 3` scenarios in `Development`).
+| Check                                       | Scope & Command                                                                                                                                                      | Result                                                                                                                                        |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Flagsmith Dev Provision & Calibration       | `ops/provision.mjs --env dev --project 56540 --apply --start` (`1429`, `1430`) + `sim/simulate.ts` (`N=100 × 3`) + `analysis/verify.py`                              | **Pass (`1,307` events across `6` types; `152` control / `148` counterexample; `control_delta=0`, `counterexample_delta=0`, SRM `p=0.8174`)** |
+| Vercel Production CSP & Pre-Consent         | `https://witness-toggle-wars.vercel.app/` (`main` @ `7e4e113` / `prereg-v1`)                                                                                         | **Pass (`0` CSP errors, `0` pre-consent Flagsmith calls)**                                                                                    |
+| Flagsmith Prod Launch & Live Arm Smoke Test | `ops/provision.mjs --env prod --project 56540 --apply --start` (`1672`, `1673`) + isolated Chrome incognito tests (`control` + `counterexample`) + `ops/monitor.mjs` | **Pass (`in_experiment: true`, both arms rendered distinctly, `$flag_exposure` + events `202 Accepted`, `21` Prod events)**                   |

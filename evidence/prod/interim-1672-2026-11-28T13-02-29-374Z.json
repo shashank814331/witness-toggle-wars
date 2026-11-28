@@ -1,0 +1,203 @@
+{
+  "results": {
+    "as_of": "2026-11-28T13:02:29.936540Z",
+    "last_error_at": null,
+    "refresh_requested_at": "2026-11-28T13:02:29.886703Z",
+    "payload": {
+      "metrics": [
+        {
+          "variants": {
+            "control": {
+              "n": 1,
+              "sum": 1,
+              "sum_squares": 1
+            },
+            "counterexample": {
+              "n": 3,
+              "sum": 3,
+              "sum_squares": 3
+            }
+          },
+          "inference": {
+            "counterexample": null
+          },
+          "metric_id": 1714,
+          "conversions_timeseries": {
+            "points": [
+              {
+                "bucket": "2026-11-28T13:00:00+00:00",
+                "converted_identities": {
+                  "control": 1,
+                  "counterexample": 3
+                }
+              }
+            ],
+            "granularity": "hour"
+          }
+        },
+        {
+          "variants": {
+            "control": {
+              "n": 1,
+              "sum": 1,
+              "sum_squares": 1
+            },
+            "counterexample": {
+              "n": 3,
+              "sum": 3,
+              "sum_squares": 3
+            }
+          },
+          "inference": {
+            "counterexample": null
+          },
+          "metric_id": 1715,
+          "conversions_timeseries": {
+            "points": [
+              {
+                "bucket": "2026-11-28T13:00:00+00:00",
+                "converted_identities": {
+                  "control": 1,
+                  "counterexample": 3
+                }
+              }
+            ],
+            "granularity": "hour"
+          }
+        },
+        {
+          "variants": {
+            "control": {
+              "n": 1,
+              "sum": 0,
+              "sum_squares": 0
+            },
+            "counterexample": {
+              "n": 3,
+              "sum": 0,
+              "sum_squares": 0
+            }
+          },
+          "inference": {
+            "counterexample": null
+          },
+          "metric_id": 1716,
+          "conversions_timeseries": {
+            "points": [],
+            "granularity": "hour"
+          }
+        },
+        {
+          "variants": {
+            "control": {
+              "n": 1,
+              "sum": 1,
+              "sum_squares": 1
+            },
+            "counterexample": {
+              "n": 3,
+              "sum": 3,
+              "sum_squares": 3
+            }
+          },
+          "inference": {
+            "counterexample": null
+          },
+          "metric_id": 1717,
+          "conversions_timeseries": {
+            "points": [
+              {
+                "bucket": "2026-11-28T13:00:00+00:00",
+                "converted_identities": {
+                  "control": 1,
+                  "counterexample": 3
+                }
+              }
+            ],
+            "granularity": "hour"
+          }
+        },
+        {
+          "variants": {
+            "control": {
+              "n": 1,
+              "sum": 0,
+              "sum_squares": 0
+            },
+            "counterexample": {
+              "n": 3,
+              "sum": 0,
+              "sum_squares": 0
+            }
+          },
+          "inference": {
+            "counterexample": null
+          },
+          "metric_id": 1718,
+          "conversions_timeseries": null
+        }
+      ],
+      "srm_p_value": null,
+      "exposures_timeseries": {
+        "points": [
+          {
+            "bucket": "2026-11-28T13:00:00+00:00",
+            "new_identities": {
+              "control": 1,
+              "counterexample": 3
+            }
+          }
+        ],
+        "granularity": "hour"
+      }
+    },
+    "is_final": false
+  },
+  "metric_definitions": [
+    {
+      "id": 2092,
+      "metric": 1714,
+      "metric_name": "core_set_completed",
+      "aggregation": "occurrence",
+      "direction": "up",
+      "expected_direction": "increase",
+      "created_at": "2026-11-28T12:59:10.659003Z"
+    },
+    {
+      "id": 2093,
+      "metric": 1715,
+      "metric_name": "challenge1_solved",
+      "aggregation": "occurrence",
+      "direction": "up",
+      "expected_direction": "increase",
+      "created_at": "2026-11-28T12:59:10.659024Z"
+    },
+    {
+      "id": 2094,
+      "metric": 1716,
+      "metric_name": "gave_up",
+      "aggregation": "occurrence",
+      "direction": "down",
+      "expected_direction": "decrease",
+      "created_at": "2026-11-28T12:59:10.659037Z"
+    },
+    {
+      "id": 2095,
+      "metric": 1717,
+      "metric_name": "transfer_solved",
+      "aggregation": "occurrence",
+      "direction": "up",
+      "expected_direction": "not_decrease",
+      "created_at": "2026-11-28T12:59:10.659051Z"
+    },
+    {
+      "id": 2096,
+      "metric": 1718,
+      "metric_name": "feedback_render_error",
+      "aggregation": "count",
+      "direction": "down",
+      "expected_direction": "not_increase",
+      "created_at": "2026-11-28T12:59:10.659064Z"
+    }
+  ]
+}

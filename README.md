@@ -4,10 +4,11 @@
 
 **Witness** is a pre-registered Flagsmith Experimentation lab built for **Toggle Wars 2026 — Track 01 ("Test Something Real")** (`github.com/shashank814331`). It tests a contested question in programming-education research inside a 5-minute regex-debugging app, measuring core completion alongside an unaided transfer checkpoint guardrail.
 
-- **Pre-registration:** [PREREGISTRATION.md](./PREREGISTRATION.md) (`prereg-v1` tag before Production launch)
+- **Live Experiment:** https://witness-toggle-wars.vercel.app/ (QR: [recruitment-qr.png](./recruitment-qr.png) · Production Flagsmith Exp IDs: `1672` `witness_feedback_style_prod`, `1673` `witness_aa_canary_prod`)
+- **Pre-registration:** [PREREGISTRATION.md](./PREREGISTRATION.md) (`prereg-v1` tag at `7e4e113` before Production launch)
 - **Results (Real vs. Simulated strictly separated):** [RESULTS.md](./RESULTS.md)
 - **Architecture & 12 Judge Q&As:** [WALKTHROUGH.md](./WALKTHROUGH.md)
-- **Demo Video:** _(Link to be added after final Production freeze recording)_
+- **Demo Video & Script:** [DEMO_SCRIPT.md](./DEMO_SCRIPT.md) _(recording in progress after Production launch)_
 
 ---
 

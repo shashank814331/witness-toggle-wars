@@ -1,0 +1,231 @@
+{
+  "results": {
+    "as_of": "2026-11-27T13:29:19.190174Z",
+    "last_error_at": null,
+    "refresh_requested_at": "2026-11-27T13:29:19.091064Z",
+    "payload": {
+      "metrics": [
+        {
+          "variants": {
+            "control": {
+              "n": 152,
+              "sum": 49,
+              "sum_squares": 49
+            },
+            "counterexample": {
+              "n": 148,
+              "sum": 51,
+              "sum_squares": 51
+            }
+          },
+          "inference": {
+            "counterexample": {
+              "lift": 0.068946497517926,
+              "ci_low": -0.2744149065135115,
+              "ci_high": 0.4123079015493636,
+              "chance_to_win": 0.6530463289801925
+            }
+          },
+          "metric_id": 1482,
+          "conversions_timeseries": {
+            "points": [
+              {
+                "bucket": "2026-11-27T13:00:00+00:00",
+                "converted_identities": {
+                  "control": 49,
+                  "counterexample": 51
+                }
+              }
+            ],
+            "granularity": "hour"
+          }
+        },
+        {
+          "variants": {
+            "control": {
+              "n": 152,
+              "sum": 83,
+              "sum_squares": 83
+            },
+            "counterexample": {
+              "n": 148,
+              "sum": 80,
+              "sum_squares": 80
+            }
+          },
+          "inference": {
+            "counterexample": {
+              "lift": -0.010094431781178671,
+              "ci_low": -0.21622675473072936,
+              "ci_high": 0.19603789116837203,
+              "chance_to_win": 0.4617679541638034
+            }
+          },
+          "metric_id": 1483,
+          "conversions_timeseries": {
+            "points": [
+              {
+                "bucket": "2026-11-27T13:00:00+00:00",
+                "converted_identities": {
+                  "control": 83,
+                  "counterexample": 80
+                }
+              }
+            ],
+            "granularity": "hour"
+          }
+        },
+        {
+          "variants": {
+            "control": {
+              "n": 152,
+              "sum": 113,
+              "sum_squares": 113
+            },
+            "counterexample": {
+              "n": 148,
+              "sum": 114,
+              "sum_squares": 114
+            }
+          },
+          "inference": {
+            "counterexample": {
+              "lift": 0.03611576177947857,
+              "ci_low": -0.09727417582722961,
+              "ci_high": 0.16950569938618673,
+              "chance_to_win": 0.29782489752631947
+            }
+          },
+          "metric_id": 1484,
+          "conversions_timeseries": {
+            "points": [
+              {
+                "bucket": "2026-11-27T13:00:00+00:00",
+                "converted_identities": {
+                  "control": 113,
+                  "counterexample": 114
+                }
+              }
+            ],
+            "granularity": "hour"
+          }
+        },
+        {
+          "variants": {
+            "control": {
+              "n": 152,
+              "sum": 104,
+              "sum_squares": 104
+            },
+            "counterexample": {
+              "n": 148,
+              "sum": 101,
+              "sum_squares": 101
+            }
+          },
+          "inference": {
+            "counterexample": {
+              "lift": -0.0025987525987525894,
+              "ci_low": -0.15680035687490484,
+              "ci_high": 0.15160285167739967,
+              "chance_to_win": 0.4868248601534406
+            }
+          },
+          "metric_id": 1485,
+          "conversions_timeseries": {
+            "points": [
+              {
+                "bucket": "2026-11-27T13:00:00+00:00",
+                "converted_identities": {
+                  "control": 104,
+                  "counterexample": 101
+                }
+              }
+            ],
+            "granularity": "hour"
+          }
+        },
+        {
+          "variants": {
+            "control": {
+              "n": 152,
+              "sum": 0,
+              "sum_squares": 0
+            },
+            "counterexample": {
+              "n": 148,
+              "sum": 0,
+              "sum_squares": 0
+            }
+          },
+          "inference": {
+            "counterexample": null
+          },
+          "metric_id": 1486,
+          "conversions_timeseries": null
+        }
+      ],
+      "srm_p_value": null,
+      "exposures_timeseries": {
+        "points": [
+          {
+            "bucket": "2026-11-27T13:00:00+00:00",
+            "new_identities": {
+              "control": 152,
+              "counterexample": 148
+            }
+          }
+        ],
+        "granularity": "hour"
+      }
+    },
+    "is_final": false
+  },
+  "metric_definitions": [
+    {
+      "id": 1747,
+      "metric": 1482,
+      "metric_name": "core_set_completed",
+      "aggregation": "occurrence",
+      "direction": "up",
+      "expected_direction": "increase",
+      "created_at": "2026-11-27T13:10:47.125589Z"
+    },
+    {
+      "id": 1748,
+      "metric": 1483,
+      "metric_name": "challenge1_solved",
+      "aggregation": "occurrence",
+      "direction": "up",
+      "expected_direction": "increase",
+      "created_at": "2026-11-27T13:10:47.125601Z"
+    },
+    {
+      "id": 1749,
+      "metric": 1484,
+      "metric_name": "gave_up",
+      "aggregation": "occurrence",
+      "direction": "down",
+      "expected_direction": "decrease",
+      "created_at": "2026-11-27T13:10:47.125608Z"
+    },
+    {
+      "id": 1750,
+      "metric": 1485,
+      "metric_name": "transfer_solved",
+      "aggregation": "occurrence",
+      "direction": "up",
+      "expected_direction": "not_decrease",
+      "created_at": "2026-11-27T13:10:47.125615Z"
+    },
+    {
+      "id": 1751,
+      "metric": 1486,
+      "metric_name": "feedback_render_error",
+      "aggregation": "count",
+      "direction": "down",
+      "expected_direction": "not_increase",
+      "created_at": "2026-11-27T13:10:47.125621Z"
+    }
+  ]
+}

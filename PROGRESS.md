@@ -67,12 +67,18 @@
 - [x] Calibration simulator (`sim/model.md`, `sim/simulate.ts`, Production key refusal) & Python SRM + 200k Beta-Binomial + reconciliation script (`analysis/verify.py`)
 - [x] GitHub isolation (`shashank814331`), public repo `shashank814331/witness-toggle-wars`, `Flagsmith/flagsmith` starred, `main` (`7e4e113`) + `prereg-v1` pushed before Production start
 
-### Parked for Human Credentials / Approvals (`RED`)
+### Completed & Live (`2026-11-28 18:32 IST`)
 
-- [ ] Flagsmith CLI auth (`.\node_modules\.bin\flagsmith.cmd login`) & `.env.development.local`
-- [ ] Live Flagsmith `Development` provisioning (`ops/provision.mjs --env dev --project 56540 --apply --start`) & `N=100 × 3` calibration
-- [ ] Deploy static bundle to Vercel with Production key & run `ops/provision.mjs --env prod --project 56540 --apply --start` + 2-browser live smoke test + `recruitment-qr.png`
-- [ ] Fri/Sat/Sun `09:00 IST` no-peeking checks (`ops/monitor.mjs`), Sunday `14:00 IST` freeze & export, finalize `RESULTS.md`, record ≤3 min video, and submit before `20:00 IST`
+- [x] Flagsmith CLI auth (`.\node_modules\.bin\flagsmith.cmd login`) & `.env.development.local`
+- [x] Live Flagsmith `Development` provisioning (`ops/provision.mjs --env dev --project 56540 --apply --start`, IDs `1429` & `1430`) & `N=100 × 3` calibration (`1,307` events, `matched_exactly: true`, `control_delta: 0`, `counterexample_delta: 0`)
+- [x] Deployed `main` (`7e4e113` / `prereg-v1`) to Vercel at `https://witness-toggle-wars.vercel.app/` (0 CSP errors, 0 pre-consent Flagsmith calls)
+- [x] Provisioned & started Production experiments (`1672` `witness_feedback_style_prod` at `2026-11-28 18:29:13 IST`, `1673` `witness_aa_canary_prod` at `2026-11-28 18:29:15 IST`)
+- [x] Verified both Production arms (`control` + `counterexample`), `$flag_exposure`, and `202 Accepted` events via live incognito Chrome smoke tests, generated `recruitment-qr.png`, and ran initial no-peeking health check (`ops/monitor.mjs --env prod --experiment-id 1672 --aa-id 1673 --apply`)
+
+### Remaining Before Sunday Submission (`29 Nov 2026`)
+
+- [ ] Collect volunteer traffic via `https://witness-toggle-wars.vercel.app/` and `recruitment-qr.png` (run `ops/monitor.mjs` no-peeking check Sunday `09:00 IST`)
+- [ ] Sunday `14:00 IST` fixed-horizon freeze & export (`node ops/export.mjs --env prod --experiment-id 1672 --apply` & `--experiment-id 1673 --apply`), finalize `RESULTS.md`, record ≤3 min video (`DEMO_SCRIPT.md`), and submit before `20:00 IST`
 
 ## Depth & Reliability Pass (`2026-11-26`)
 
