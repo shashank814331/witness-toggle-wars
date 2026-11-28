@@ -4,7 +4,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { formatInterimHealthRow, parseOpsCliArgs } from './cliHelpers.mjs';
 
-const flagsmithBin = path.resolve('node_modules/@flagsmith/cli/bin/flagsmith.js');
+const flagsmithBin = path.resolve('node_modules/@flagsmith/cli/index.js');
 
 function fetchAndVerify(env, envKey, expId, stamp) {
   const outFile = path.resolve('evidence', env, `interim-${expId}-${stamp}.json`);
@@ -19,13 +19,29 @@ function fetchAndVerify(env, envKey, expId, stamp) {
     ],
     { stdio: 'inherit' },
   );
-  const rawJson = execFileSync(
+  const expMetaRaw = execFileSync(
     process.execPath,
-    [flagsmithBin, 'api', `api/v1/environments/${envKey}/experiments/${expId}/results/`],
+    [flagsmithBin, '--no-input', 'api', `api/v1/environments/${envKey}/experiments/${expId}/`],
     { encoding: 'utf8' },
   );
+  const rawJson = execFileSync(
+    process.execPath,
+    [
+      flagsmithBin,
+      '--no-input',
+      'api',
+      `api/v1/environments/${envKey}/experiments/${expId}/results/`,
+    ],
+    { encoding: 'utf8' },
+  );
+  const expMeta = JSON.parse(expMetaRaw);
+  const parsedResults = JSON.parse(rawJson);
   fs.mkdirSync(path.dirname(outFile), { recursive: true });
-  fs.writeFileSync(outFile, rawJson, 'utf8');
+  fs.writeFileSync(
+    outFile,
+    `${JSON.stringify({ ...parsedResults, metric_definitions: expMeta.metrics ?? [] }, null, 2)}\n`,
+    'utf8',
+  );
 
   const verifyRaw = execFileSync('python', ['analysis/verify.py', '--results-json', outFile], {
     encoding: 'utf8',
@@ -50,9 +66,9 @@ function formatIstTimestamp(date) {
 function appendInterimRow(row) {
   const resultsPath = path.resolve('RESULTS.md');
   const content = fs.readFileSync(resultsPath, 'utf8');
-  const marker = '| _Pending launch_ | _—_ | _—_ | _—_ | _—_ | _—_ |';
-  if (content.includes(marker)) {
-    fs.writeFileSync(resultsPath, content.replace(marker, row), 'utf8');
+  const pendingRegex = /^\| _Pending launch_ .*$/m;
+  if (pendingRegex.test(content)) {
+    fs.writeFileSync(resultsPath, content.replace(pendingRegex, row), 'utf8');
     return;
   }
   const anchor = '## 3. SIMULATED PIPELINE CALIBRATION';
@@ -61,7 +77,10 @@ function appendInterimRow(row) {
     fs.writeFileSync(resultsPath, `${content.trimEnd()}\n${row}\n`, 'utf8');
     return;
   }
-  const before = content.slice(0, idx).trimEnd();
+  const before = content
+    .slice(0, idx)
+    .replace(/\n+---\s*$/, '')
+    .trimEnd();
   const after = content.slice(idx);
   fs.writeFileSync(resultsPath, `${before}\n${row}\n\n---\n\n${after}`, 'utf8');
 }

@@ -30,5 +30,5 @@ JSON
 create_metric "core_set_completed" "occurrence" "up"
 create_metric "challenge1_solved" "occurrence" "up"
 create_metric "gave_up" "occurrence" "down"
-create_metric "transfer_solved" "occurrence" "not-decrease"
-create_metric "feedback_render_error" "count" "not-increase"
+create_metric "transfer_solved" "occurrence" "up"
+create_metric "feedback_render_error" "count" "down"

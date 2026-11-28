@@ -8,10 +8,10 @@ import {
   WITNESS_METRICS,
 } from './cliHelpers.mjs';
 
-const flagsmithBin = path.resolve('node_modules/@flagsmith/cli/bin/flagsmith.js');
+const flagsmithBin = path.resolve('node_modules/@flagsmith/cli/index.js');
 
 function runCli(args, stdinJson) {
-  const cmdArgs = [flagsmithBin, ...args];
+  const cmdArgs = [flagsmithBin, '--no-input', ...args];
   if (process.argv.includes('--verbose')) {
     console.log('[CLI]', cmdArgs.join(' '));
   }
@@ -34,7 +34,7 @@ function verifyPreregTagIfProd(env) {
   }
 }
 
-function ensureFeatureWithVariant(name, value, key, apply) {
+function ensureFeatureWithVariant(name, value, key, apply, project, envKey) {
   if (!apply) {
     console.log(`[DRY-RUN] flagsmith feature create ${name} --value control --enabled`);
     console.log(
@@ -45,17 +45,43 @@ function ensureFeatureWithVariant(name, value, key, apply) {
   }
 
   try {
-    runCli(['feature', 'create', name, '--value', 'control', '--enabled']);
+    runCli([
+      'feature',
+      'create',
+      name,
+      '--value',
+      'control',
+      '--enabled',
+      '-p',
+      project,
+      '-e',
+      envKey,
+    ]);
   } catch {
     // Feature may already exist; verify below via feature get --json
   }
 
-  let parsed = JSON.parse(runCli(['feature', 'get', name, '--json']));
+  let parsed = JSON.parse(runCli(['feature', 'get', name, '--json', '-p', project, '-e', envKey]));
   try {
     return extractFeatureAndVariationIds(parsed, key);
   } catch {
-    runCli(['feature', 'variant', 'add', name, '--value', value, '--key', key, '--weight', '0']);
-    parsed = JSON.parse(runCli(['feature', 'get', name, '--json']));
+    runCli([
+      'feature',
+      'variant',
+      'add',
+      name,
+      '--value',
+      value,
+      '--key',
+      key,
+      '--weight',
+      '0',
+      '-p',
+      project,
+      '-e',
+      envKey,
+    ]);
+    parsed = JSON.parse(runCli(['feature', 'get', name, '--json', '-p', project, '-e', envKey]));
     return extractFeatureAndVariationIds(parsed, key);
   }
 }
@@ -126,11 +152,9 @@ function main() {
   console.log(`=== Witness Provisioning (env=${opts.env}, apply=${String(opts.apply)}) ===`);
   if (!opts.apply) {
     console.log(
-      `[DRY-RUN] flagsmith init --project ${opts.project} --environment <${opts.env}_key>`,
+      `[DRY-RUN] Verify project ${opts.project} + GET api/v1/environments/<${opts.env}_key>/warehouse-connections/`,
     );
-    console.log(`[DRY-RUN] GET api/v1/environments/<${opts.env}_key>/warehouse-connections/`);
   } else {
-    runCli(['init', '--project', opts.project, '--environment', envKey]);
     const warehouse = JSON.parse(
       runCli(['api', `api/v1/environments/${envKey}/warehouse-connections/`]),
     );
@@ -146,8 +170,17 @@ function main() {
     'counterexample',
     'counterexample',
     opts.apply,
+    opts.project,
+    envKey,
   );
-  const aa = ensureFeatureWithVariant('aa_canary', 'control_copy', 'aa_b', opts.apply);
+  const aa = ensureFeatureWithVariant(
+    'aa_canary',
+    'control_copy',
+    'aa_b',
+    opts.apply,
+    opts.project,
+    envKey,
+  );
   const metrics = ensureMetrics(opts.apply ? envKey : opts.env, opts.apply);
   const primary = metrics.find((m) => m.name === 'core_set_completed');
   if (!primary) throw new Error('Primary metric missing');
@@ -177,32 +210,44 @@ function main() {
     return;
   }
 
-  const createdMain = JSON.parse(
-    runCli(
-      ['api', `api/v1/environments/${envKey}/experiments/`, '--method', 'POST', '--input', '-'],
-      mainPayload,
-    ),
-  );
-  const createdAa = JSON.parse(
-    runCli(
-      ['api', `api/v1/environments/${envKey}/experiments/`, '--method', 'POST', '--input', '-'],
-      aaPayload,
-    ),
-  );
-  console.log(`Created experiments: main=${String(createdMain.id)}, aa=${String(createdAa.id)}`);
+  const existingExperimentsRaw = runCli(['api', `api/v1/environments/${envKey}/experiments/`]);
+  const existingExperimentsData = JSON.parse(existingExperimentsRaw);
+  const existingList = Array.isArray(existingExperimentsData)
+    ? existingExperimentsData
+    : (existingExperimentsData?.results ?? []);
+  const byName = new Map(existingList.map((exp) => [exp.name, exp]));
+
+  const ensureExperiment = (payload) => {
+    const existing = byName.get(payload.name);
+    if (existing && typeof existing.id === 'number') {
+      return existing;
+    }
+    return JSON.parse(
+      runCli(
+        ['api', `api/v1/environments/${envKey}/experiments/`, '--method', 'POST', '--input', '-'],
+        payload,
+      ),
+    );
+  };
+
+  const createdMain = ensureExperiment(mainPayload);
+  const createdAa = ensureExperiment(aaPayload);
+  console.log(`Resolved experiments: main=${String(createdMain.id)}, aa=${String(createdAa.id)}`);
 
   if (opts.start) {
-    for (const expId of [createdMain.id, createdAa.id]) {
-      runCli([
-        'api',
-        `api/v1/environments/${envKey}/experiments/${String(expId)}/start/`,
-        '--method',
-        'POST',
-      ]);
+    for (const exp of [createdMain, createdAa]) {
+      if (exp.status !== 'running') {
+        runCli([
+          'api',
+          `api/v1/environments/${envKey}/experiments/${String(exp.id)}/start/`,
+          '--method',
+          'POST',
+        ]);
+      }
       const status = JSON.parse(
-        runCli(['api', `api/v1/environments/${envKey}/experiments/${String(expId)}/`]),
+        runCli(['api', `api/v1/environments/${envKey}/experiments/${String(exp.id)}/`]),
       );
-      console.log(`Experiment ${String(expId)} status: ${String(status.status)}`);
+      console.log(`Experiment ${String(exp.id)} status: ${String(status.status)}`);
     }
   }
 }

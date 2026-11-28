@@ -15,14 +15,14 @@ export const WITNESS_METRICS = [
   {
     name: 'transfer_solved',
     aggregation: 'occurrence',
-    direction: 'not-decrease',
-    expectedDirection: 'not-decrease',
+    direction: 'up',
+    expectedDirection: 'not_decrease',
   },
   {
     name: 'feedback_render_error',
     aggregation: 'count',
-    direction: 'not-increase',
-    expectedDirection: 'not-increase',
+    direction: 'down',
+    expectedDirection: 'not_increase',
   },
 ];
 
@@ -82,7 +82,11 @@ export function extractFeatureAndVariationIds(featureJson, variationKey) {
     throw new Error('Could not find numeric feature id in Flagsmith JSON output.');
   }
   const options =
-    featureJson?.multivariate_options ?? featureJson?.feature?.multivariate_options ?? [];
+    featureJson?.variants ??
+    featureJson?.multivariate_options ??
+    featureJson?.feature?.variants ??
+    featureJson?.feature?.multivariate_options ??
+    [];
   const matched = options.find(
     (opt) => opt?.key === variationKey || opt?.string_value === variationKey,
   );

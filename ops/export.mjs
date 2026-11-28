@@ -4,7 +4,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { parseOpsCliArgs } from './cliHelpers.mjs';
 
-const flagsmithBin = path.resolve('node_modules/@flagsmith/cli/bin/flagsmith.js');
+const flagsmithBin = path.resolve('node_modules/@flagsmith/cli/index.js');
 
 function main() {
   const opts = parseOpsCliArgs(process.argv.slice(2));
@@ -46,18 +46,36 @@ function main() {
     { stdio: 'inherit' },
   );
 
+  const expMetaRaw = execFileSync(
+    process.execPath,
+    [
+      flagsmithBin,
+      '--no-input',
+      'api',
+      `api/v1/environments/${envKey}/experiments/${opts.experimentId}/`,
+    ],
+    { encoding: 'utf8' },
+  );
   const rawJson = execFileSync(
     process.execPath,
     [
       flagsmithBin,
+      '--no-input',
       'api',
       `api/v1/environments/${envKey}/experiments/${opts.experimentId}/results/`,
     ],
     { encoding: 'utf8' },
   );
 
+  const expMeta = JSON.parse(expMetaRaw);
+  const parsedResults = JSON.parse(rawJson);
+  const enrichedPayload = {
+    ...parsedResults,
+    metric_definitions: expMeta.metrics ?? [],
+  };
+
   fs.mkdirSync(path.dirname(outFile), { recursive: true });
-  fs.writeFileSync(outFile, rawJson, 'utf8');
+  fs.writeFileSync(outFile, `${JSON.stringify(enrichedPayload, null, 2)}\n`, 'utf8');
   console.log(`Saved export to ${outFile}`);
 
   execFileSync('python', ['analysis/verify.py', '--results-json', outFile], { stdio: 'inherit' });
